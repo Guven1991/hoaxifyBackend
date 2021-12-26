@@ -1,6 +1,0 @@
-2021-12-02 13:46:17 jdbc[13]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT USER * FROM[*] USER USER"; SQL statement:
-SELECT USER * FROM USER USER [42000-200]
-2021-12-02 13:46:18 jdbc[13]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT USER * FROM[*] USER USER"; SQL statement:
-SELECT USER * FROM USER USER [42000-200]
