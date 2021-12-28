@@ -1,9 +1,7 @@
 package com.hoaxify.ws.user;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.hoaxify.ws.shared.Views;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -27,21 +25,17 @@ public class User implements UserDetails {
     @NotBlank(message = "{hoaxify.constraints.username.NotBlank.message}")   // hem @NotNull hem de @NotEmpty  alamaması için
     @Size(min = 4, max = 255)
     @UniqueUsername   //    @Column(unique = true) //database tarafında aynı username de iki şeye izin varmez
-    @JsonView(Views.Base.class)
     private String username;
 
     @NotBlank
     @Size(min = 4, max = 255)
-    @JsonView(Views.Base.class)
     private String displayName;
 
     @NotBlank
     @Size(min = 8, max = 255)
     @Pattern(regexp="^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$", message ="{hoaxify.constraints.password.Pattern.message}")  //küçükharf,büyük harf, sayi olmalı
-    @JsonView(Views.Sensitive.class)
     private String password;
 
-    @JsonView(Views.Base.class)
     private String image;
 
     @Override
