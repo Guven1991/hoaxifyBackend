@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Data
 @Configuration
-@ConfigurationProperties
+@ConfigurationProperties(prefix = "hoaxify")
 public class AppConfiguration {
 
     private String uploadPath;

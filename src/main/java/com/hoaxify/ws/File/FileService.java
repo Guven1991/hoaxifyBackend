@@ -1,25 +1,28 @@
 package com.hoaxify.ws.File;
 
 
-import org.springframework.beans.factory.annotation.Value;
+import com.hoaxify.ws.configuration.AppConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.UUID;
 
 @Service
 public class FileService {
 
-    @Value("${upload-path}")
-    String uploadPath;
+    @Autowired
+    AppConfiguration appConfiguration;
 
     public String writeBase64EncodedStringToFile(String image) throws IOException {
         String fileName = generateRandomName();
-        File target = new File(uploadPath + "/" + fileName);
+        File target = new File(appConfiguration.getUploadPath() + "/" + fileName);
         OutputStream outputStream = new FileOutputStream(target);
 
         byte[] base64encoded = Base64.getDecoder().decode(image);
@@ -27,8 +30,20 @@ public class FileService {
         outputStream.close();
         return fileName;
     }
-// kullanıcı resimleri için ramdom isim üreten method
-    public String generateRandomName(){
-        return UUID.randomUUID().toString().replaceAll("-","");
+
+    // kullanıcı resimleri için ramdom isim üreten method
+    public String generateRandomName() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    public void deleteFile(String oldImageName) {
+        if (oldImageName == null) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(Paths.get(appConfiguration.getUploadPath(), oldImageName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
