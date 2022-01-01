@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -33,7 +35,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.httpBasic().authenticationEntryPoint(new AuthEntryPoint());
 
         http
-                .authorizeRequests().antMatchers(HttpMethod.POST, "/api/1.0/auth" ).authenticated()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, "/api/1.0/auth" ).authenticated()
+                .antMatchers(HttpMethod.PUT, "/api/1.0/users/{username}" ).authenticated()
                 .and()
                 .authorizeRequests().anyRequest().permitAll();
 
