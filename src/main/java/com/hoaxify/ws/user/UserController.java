@@ -43,7 +43,7 @@ public class UserController {
 
     @PutMapping("/users/{username}")
     @PreAuthorize("#username == principal.username")  // login olan kullanıcının kendisi dısındaki kullanıcıların bilgisini değiştirememesini sağlar
-    UserVM updateUser(@RequestBody UserUpdateVM updatedUser, @PathVariable String username){
+    UserVM updateUser(@Valid @RequestBody UserUpdateVM updatedUser, @PathVariable String username){
        User user = userService.updateUser(username, updatedUser);
         return new UserVM(user);
     }
