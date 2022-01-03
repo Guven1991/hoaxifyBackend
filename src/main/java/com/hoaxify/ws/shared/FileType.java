@@ -1,8 +1,6 @@
 package com.hoaxify.ws.shared;
 
 
-import com.hoaxify.ws.user.UniqueUsernameValidator;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Retention;
@@ -13,12 +11,13 @@ import static java.lang.annotation.ElementType.FIELD;
 
 @Target({FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = { ProfileImageValidator.class})
-public @interface ProfileImage {
+@Constraint(validatedBy = { FileTypeValidator.class})
+public @interface FileType {
 
-    String message() default "{hoaxify.constraint.ProfileImage.message}";
+    String message() default "{hoaxify.constraint.FileType.message}";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
+    String[] types();
 }
