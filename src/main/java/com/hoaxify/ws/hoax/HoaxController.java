@@ -1,6 +1,9 @@
 package com.hoaxify.ws.hoax;
 
+import com.hoaxify.ws.hoax.vm.HoaxVM;
+import com.hoaxify.ws.shared.CurrentUser;
 import com.hoaxify.ws.shared.GenericResponse;
+import com.hoaxify.ws.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,14 +21,18 @@ public class HoaxController {
     HoaxService hoaxService;
 
     @PostMapping("/hoaxes")
-    GenericResponse saveHoax(@Valid @RequestBody Hoax hoax) {
-        hoaxService.save(hoax);
+    GenericResponse saveHoax(@Valid @RequestBody Hoax hoax, @CurrentUser User user) {
+        hoaxService.save(hoax, user);
         return new GenericResponse("Hoax is saved");
     }
 
     @GetMapping("/hoaxes")
-    Page<Hoax> getHoaxes(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable page){
-        return hoaxService.getHoaxes(page);
+    Page<HoaxVM> getHoaxes(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable page){
+        return hoaxService.getHoaxes(page).map(HoaxVM::new);
     }
 
+    @GetMapping("/users/{username}/hoaxes")
+    Page<HoaxVM> getUserHoaxes(@PathVariable String username, @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable page){
+        return hoaxService.getHoaxesOfUser(username, page).map(HoaxVM::new);
+    }
 }

@@ -1,5 +1,6 @@
 package com.hoaxify.ws.hoax;
 
+import com.hoaxify.ws.user.User;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.util.Date;
 @Entity
 public class Hoax {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) // database deki ytabloda kendine özgü id ile devam eder
     private long id;
 
     @Size(min=1, max=1000)
@@ -19,4 +20,7 @@ public class Hoax {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date timestamp;
+
+    @ManyToOne
+    private User user;
 }

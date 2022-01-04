@@ -19,7 +19,7 @@ import java.util.Collection;
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //herbir tablonun identity lociği oluyor
     private long id;
 
     @NotBlank(message = "{hoaxify.constraints.username.NotBlank.message}")   // hem @NotNull hem de @NotEmpty  alamaması için
