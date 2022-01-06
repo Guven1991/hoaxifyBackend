@@ -1,5 +1,8 @@
 package com.hoaxify.ws.hoax;
 
+import com.hoaxify.ws.File.FileAttachment;
+import com.hoaxify.ws.File.FileAttachmentRepository;
+import com.hoaxify.ws.hoax.vm.HoaxSubmitVM;
 import com.hoaxify.ws.user.User;
 import com.hoaxify.ws.user.UserService;
 import org.springframework.data.domain.Page;
@@ -24,16 +27,27 @@ public class HoaxService {
 
     UserService userService;
 
-    public HoaxService(HoaxRepository hoaxRepository, UserService userService) {
+    FileAttachmentRepository fileAttachmentRepository;
+
+    public HoaxService(HoaxRepository hoaxRepository, UserService userService, FileAttachmentRepository fileAttachmentRepository) {
         super();
         this.hoaxRepository = hoaxRepository;
         this.userService = userService;
+        this.fileAttachmentRepository = fileAttachmentRepository;
     }
 
-    public void save(Hoax hoax, User user) {
+    public void save(HoaxSubmitVM hoaxSubmitVM, User user) {
+        Hoax hoax = new Hoax();
+        hoax.setContent(hoaxSubmitVM.getContent());
         hoax.setTimestamp(new Date());
         hoax.setUser(user);
         hoaxRepository.save(hoax);
+        Optional<FileAttachment> optionalFileAttachment = fileAttachmentRepository.findById(hoaxSubmitVM.getAttachmentId());
+        if(optionalFileAttachment.isPresent()){
+            FileAttachment fileAttachment = optionalFileAttachment.get();
+            fileAttachment.setHoax(hoax);
+            fileAttachmentRepository.save(fileAttachment);
+        }
     }
 
     public Page<Hoax> getHoaxes(Pageable page) {
