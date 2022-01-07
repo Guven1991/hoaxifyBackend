@@ -2,6 +2,7 @@ package com.hoaxify.ws.user;
 
 import com.hoaxify.ws.File.FileService;
 import com.hoaxify.ws.error.NotFoundException;
+import com.hoaxify.ws.hoax.HoaxService;
 import com.hoaxify.ws.user.vm.UserUpdateVM;
 import org.hibernate.annotations.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,19 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     FileService fileService;
+    HoaxService hoaxService;
 
-    @Autowired
+
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FileService fileService) {
+        super();
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileService = fileService;
+    }
+
+    @Autowired
+    public void setHoaxService(HoaxService hoaxService) {
+        this.hoaxService = hoaxService;
     }
 
     public void save(User user) {
@@ -69,5 +77,9 @@ public class UserService {
         return userRepository.save(inDB);
     }
 
-
+    public void deleteUser(String username) {
+        hoaxService.deleteHoaxesOfUser(username);
+        User inDB = userRepository.findByUsername(username);
+        userRepository.delete(inDB);
+    }
 }

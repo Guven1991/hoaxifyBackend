@@ -2,20 +2,17 @@ package com.hoaxify.ws.hoax;
 
 import com.hoaxify.ws.File.FileAttachment;
 import com.hoaxify.ws.File.FileAttachmentRepository;
+import com.hoaxify.ws.File.FileService;
 import com.hoaxify.ws.hoax.vm.HoaxSubmitVM;
 import com.hoaxify.ws.user.User;
 import com.hoaxify.ws.user.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -29,11 +26,18 @@ public class HoaxService {
 
     FileAttachmentRepository fileAttachmentRepository;
 
-    public HoaxService(HoaxRepository hoaxRepository, UserService userService, FileAttachmentRepository fileAttachmentRepository) {
+    FileService fileService;
+
+    public HoaxService(HoaxRepository hoaxRepository, FileAttachmentRepository fileAttachmentRepository, FileService fileService) {
         super();
         this.hoaxRepository = hoaxRepository;
-        this.userService = userService;
         this.fileAttachmentRepository = fileAttachmentRepository;
+        this.fileService = fileService;
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     public void save(HoaxSubmitVM hoaxSubmitVM, User user) {
@@ -106,4 +110,19 @@ public class HoaxService {
     }
 
 
+    public void delete(long id) {
+        Hoax inDB = hoaxRepository.getOne(id);
+        if(inDB.getFileAttachment() != null){
+            String fileName = inDB.getFileAttachment().getName();
+            fileService.deleteAttachmentFile(fileName);
+        }
+        hoaxRepository.deleteById(id);
+    }
+
+    public void deleteHoaxesOfUser(String username) {
+        User inDB = userService.getByUsername(username);
+        Specification<Hoax>  userOwned =userIs(inDB);
+        List<Hoax> hoaxesToBERemoved = hoaxRepository.findAll(userOwned);
+        hoaxRepository.deleteAll(hoaxesToBERemoved);
+    }
 }

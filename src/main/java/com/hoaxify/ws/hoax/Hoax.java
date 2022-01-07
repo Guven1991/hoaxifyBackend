@@ -25,6 +25,6 @@ public class Hoax {
     @ManyToOne
     private User user;
 
-    @OneToOne(mappedBy = "hoax")
+    @OneToOne(mappedBy = "hoax", cascade = CascadeType.REMOVE)// 2.yol olarak orphanRemoval= true bu hoax ile bağlantılı olana fileda birlikte silinmesi için kullanılır
     private FileAttachment fileAttachment;
 }
