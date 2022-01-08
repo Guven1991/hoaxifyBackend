@@ -28,16 +28,12 @@ public class HoaxService {
 
     FileService fileService;
 
-    public HoaxService(HoaxRepository hoaxRepository, FileAttachmentRepository fileAttachmentRepository, FileService fileService) {
+    public HoaxService(HoaxRepository hoaxRepository, FileAttachmentRepository fileAttachmentRepository, FileService fileService, UserService userService) {
         super();
         this.hoaxRepository = hoaxRepository;
         this.fileAttachmentRepository = fileAttachmentRepository;
         this.fileService = fileService;
-    }
-
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
+        this.userService =userService;
     }
 
     public void save(HoaxSubmitVM hoaxSubmitVM, User user) {
@@ -109,20 +105,12 @@ public class HoaxService {
         };
     }
 
-
     public void delete(long id) {
-        Hoax inDB = hoaxRepository.getOne(id);
+        Hoax inDB = hoaxRepository.getById(id);
         if(inDB.getFileAttachment() != null){
             String fileName = inDB.getFileAttachment().getName();
             fileService.deleteAttachmentFile(fileName);
         }
         hoaxRepository.deleteById(id);
-    }
-
-    public void deleteHoaxesOfUser(String username) {
-        User inDB = userService.getByUsername(username);
-        Specification<Hoax>  userOwned =userIs(inDB);
-        List<Hoax> hoaxesToBERemoved = hoaxRepository.findAll(userOwned);
-        hoaxRepository.deleteAll(hoaxesToBERemoved);
     }
 }

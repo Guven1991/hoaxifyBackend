@@ -22,21 +22,13 @@ public class UserService {
 
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
-
     FileService fileService;
-    HoaxService hoaxService;
-
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, FileService fileService) {
         super();
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.fileService = fileService;
-    }
-
-    @Autowired
-    public void setHoaxService(HoaxService hoaxService) {
-        this.hoaxService = hoaxService;
     }
 
     public void save(User user) {
@@ -50,7 +42,6 @@ public class UserService {
             return userRepository.findByUsernameNot(user.getUsername(), page);
         }
         return userRepository.findAll(page);
-
     }
 
     public User getByUsername(String username) {
@@ -78,8 +69,9 @@ public class UserService {
     }
 
     public void deleteUser(String username) {
-        hoaxService.deleteHoaxesOfUser(username);
+        //User objesinin profil fotografının kalan filelarını silme
         User inDB = userRepository.findByUsername(username);
+        fileService.deleteAllStoredFilesForUser(inDB);
         userRepository.delete(inDB);
     }
 }

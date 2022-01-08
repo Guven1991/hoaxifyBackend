@@ -2,6 +2,7 @@ package com.hoaxify.ws.File;
 
 
 import com.hoaxify.ws.configuration.AppConfiguration;
+import com.hoaxify.ws.user.User;
 import org.apache.tika.Tika;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -115,6 +116,14 @@ public class FileService {
             deleteAttachmentFile(file.getName());
             //delete form table
             fileAttachmentRepository.deleteById(file.getId());
+        }
+    }
+
+    public void deleteAllStoredFilesForUser(User inDB) {
+        deleteProfileImage(inDB.getImage());
+        List<FileAttachment> filesToBeRemoved =fileAttachmentRepository.findByHoaxUser(inDB);
+        for(FileAttachment file : filesToBeRemoved) {
+            deleteAttachmentFile(file.getName());
         }
     }
 }
