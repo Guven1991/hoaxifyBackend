@@ -3,6 +3,7 @@ package com.hoaxify.ws.user;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import com.hoaxify.ws.auth.Token;
 import com.hoaxify.ws.hoax.Hoax;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,6 +45,9 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy ="user", cascade = CascadeType.REMOVE)        // mappedBy="user" Hoax tablosundakı user sütünu bizim forenkey imizdir demek
     private List<Hoax> hoaxes;
+
+    @OneToMany(mappedBy ="user", cascade = CascadeType.REMOVE)
+    private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

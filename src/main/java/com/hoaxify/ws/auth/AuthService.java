@@ -2,19 +2,13 @@ package com.hoaxify.ws.auth;
 
 import com.hoaxify.ws.user.User;
 import com.hoaxify.ws.user.UserRepository;
-import com.hoaxify.ws.user.UserService;
 import com.hoaxify.ws.user.vm.UserVM;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import javax.transaction.Transactional;
-import java.util.Date;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -22,10 +16,12 @@ public class AuthService {
     UserRepository userRepository;
 
     PasswordEncoder passwordEncoder;
+    TokenRepository tokenRepository;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenRepository tokenRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.tokenRepository = tokenRepository;
     }
 
     public AuthResponse authenticate(Credentials credentials) {
@@ -38,12 +34,11 @@ public class AuthService {
             throw new AuthException();
         }
         UserVM userVM = new UserVM(inDB);
-
-        Date expiresAt = new Date(System.currentTimeMillis() + 10*1000);
-        String token = Jwts.builder().setSubject("" + inDB.getId())
-                .signWith(SignatureAlgorithm.HS512, "my-app-secret")
-                .setExpiration(expiresAt)
-                .compact();
+        String token = generateRandomToken();
+        Token tokenEntity = new Token();
+        tokenEntity.setToken(token);
+        tokenEntity.setUser(inDB);
+        tokenRepository.save(tokenEntity);
         AuthResponse response = new AuthResponse();
         response.setUser(userVM);
         response.setToken(token);
@@ -52,17 +47,18 @@ public class AuthService {
 
     @Transactional
     public UserDetails getUserDetails(String token) {
-        JwtParser parser = Jwts.parser().setSigningKey("my-app-secret");
-        try {
-            parser.parse(token);
-            Claims claims = parser.parseClaimsJws(token).getBody();
-            long userId = Long.parseLong(claims.getSubject());
-            User user = userRepository.getById(userId);
-            User actualUser = (User) ((HibernateProxy) user).getHibernateLazyInitializer().getImplementation();
-            return actualUser;
-        } catch (Exception e) {
-            e.printStackTrace();
+        Optional<Token> optionalToken = tokenRepository.findById(token);   //findBYId kullandık cunku entity de token ı id olarak verdik
+        if(!optionalToken.isPresent()){
+            return null;
         }
-        return null;
+        return optionalToken.get().getUser();
+    }
+
+    public String generateRandomToken() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    public void clearToken(String token) {
+        tokenRepository.deleteById(token);
     }
 }
